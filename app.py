@@ -4,7 +4,8 @@ from ml_engine import (
     retrieve_similar_cases,
     predict_legal_sections,
     detect_missing_evidence,
-    judgment_pattern_analytics
+    judgment_pattern_analytics,
+    evidence_law_mapping
 )
 
 app = Flask(__name__)
@@ -24,6 +25,8 @@ def analyze_case():
 
     analytics = judgment_pattern_analytics(query)
 
+    evidence_mapping = evidence_law_mapping(query)
+
     return jsonify({
 
     "similar_cases": similar_cases,
@@ -32,7 +35,9 @@ def analyze_case():
 
     "missing_evidence": missing_evidence,
 
-    "judgment_analytics": analytics
+    "judgment_analytics": analytics,
+
+    "evidence_law_mapping": evidence_mapping
 
 })
 

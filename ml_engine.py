@@ -228,3 +228,80 @@ def judgment_pattern_analytics(query, top_k=5):
     )
 
     return results
+
+
+
+from collections import defaultdict
+
+def evidence_law_mapping(query, top_k=5):
+
+    query_embedding = model.encode([query])
+
+    D, I = index.search(
+        np.array(query_embedding).astype('float32'),
+        k=top_k
+    )
+
+    evidence_map = defaultdict(list)
+
+    for idx in I[0]:
+
+        evidence_text = str(
+            df.iloc[idx]["evidence_types"]
+        )
+
+        legal_text = str(
+            df.iloc[idx]["legal_sections"]
+        )
+
+        evidence_list = evidence_text.split(',')
+
+        law_list = legal_text.split(',')
+
+        cleaned_laws = []
+
+        for law in law_list:
+
+            law = law.strip()
+
+            if law and law.lower() != "nan":
+
+                cleaned_laws.append(law)
+
+        for ev in evidence_list:
+
+            ev = ev.strip()
+
+            if not ev:
+                continue
+
+            evidence_map[ev].extend(
+                cleaned_laws
+            )
+
+    results = []
+
+    for evidence, laws in evidence_map.items():
+
+        law_counts = Counter(laws)
+
+        top_laws = []
+
+        for law, count in law_counts.items():
+
+            if count >= 2:
+
+                top_laws.append(law)
+
+        if len(top_laws) == 0:
+            continue
+
+        results.append({
+
+            "evidence": evidence,
+
+            "related_laws": top_laws
+
+        })
+
+    return results
