@@ -137,3 +137,94 @@ def predict_legal_sections(query, top_k=5):
     )
 
     return results
+
+def detect_missing_evidence(query, top_k=5):
+
+    query_embedding = model.encode([query])
+
+    D, I = index.search(
+        np.array(query_embedding).astype('float32'),
+        k=top_k
+    )
+
+    all_evidence = []
+
+    for idx in I[0]:
+
+        evidence_text = str(
+            df.iloc[idx]["evidence_types"]
+        )
+
+        evidence_list = evidence_text.split(',')
+
+        for ev in evidence_list:
+
+            ev = ev.strip().lower()
+
+            if ev:
+                all_evidence.append(ev)
+
+    evidence_counts = Counter(all_evidence)
+
+    query_lower = query.lower()
+
+    missing = []
+
+    for evidence, count in evidence_counts.items():
+
+        if count >= 2 and evidence not in query_lower:
+
+            missing.append(evidence)
+
+    return list(set(missing))
+
+
+
+def judgment_pattern_analytics(query, top_k=5):
+
+    query_embedding = model.encode([query])
+
+    D, I = index.search(
+        np.array(query_embedding).astype('float32'),
+        k=top_k
+    )
+
+    outcome_list = []
+
+    for idx in I[0]:
+
+        outcome = str(
+            df.iloc[idx]["judgment_outcome"]
+        ).strip()
+
+        if outcome and outcome.lower() != "nan":
+
+            outcome_list.append(outcome)
+
+    outcome_counts = Counter(outcome_list)
+
+    total = sum(outcome_counts.values())
+
+    results = []
+
+    for outcome, count in outcome_counts.items():
+
+        percentage = round(
+            (count / total) * 100,
+            2
+        )
+
+        results.append({
+
+            "outcome": outcome,
+
+            "percentage": percentage
+
+        })
+
+    results.sort(
+        key=lambda x: x["percentage"],
+        reverse=True
+    )
+
+    return results
