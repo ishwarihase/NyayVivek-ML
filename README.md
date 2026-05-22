@@ -1,127 +1,253 @@
-# NyayVivek
+NyayVivek-ML
 
-NyayVivek is an AI-assisted legal intelligence and case analysis platform designed to help users analyze complex legal documents, retrieve similar judgments, detect contradictions, identify missing evidence, and generate structured legal insights from judicial case materials.
+AI-powered Legal Analysis Backend using Semantic Search, FAISS Retrieval, and Flask API.
 
-The platform focuses on combining legal NLP, semantic retrieval, and analytical reasoning into a unified legal intelligence workflow.
+Overview
 
-## Current Features
+NyayVivek is an AI-assisted legal intelligence system designed to analyze legal case descriptions and provide:
 
-### Applicable Legal Section Detection
+Similar Case Retrieval
+IPC / Legal Section Prediction
+Missing Evidence Detection
+Judgment Pattern Analytics
+Evidence-to-Law Mapping
 
-Identifies relevant IPC and CrPC sections from uploaded judgment documents and legal text.
+The system uses:
 
-### Similar Case Retrieval
+Sentence Transformers for embeddings
+FAISS for semantic similarity search
+Flask for backend API integration
+Features
+1. Similar Case Retrieval
 
-Uses semantic embeddings and FAISS vector search to retrieve contextually similar legal cases and judgments.
+Retrieves semantically similar historical legal cases using vector embeddings and FAISS similarity search.
 
-### Missing Evidence Detection
+Output Includes:
+Case title
+Case type
+Legal sections
+Judgment outcome
+2. IPC / Legal Section Prediction
 
-Analyzes case narratives and identifies potentially missing supporting evidence or investigative gaps.
+Predicts likely IPC/legal sections based on similar retrieved cases.
 
-### Legal Text Processing
+Example:
+{
+  "section": "IPC 302",
+  "confidence": 31.55
+}
+3. Missing Evidence Detection
 
-Preprocesses and structures legal judgment text for downstream analytical tasks.
+Detects commonly occurring evidence missing from the current case description.
 
-## Planned Features
+Example:
+Eyewitness testimony
+Medical evidence
+Postmortem report
+CCTV footage
+4. Judgment Pattern Analytics
 
-* Contradiction Detection
-* Evidence-to-Law Mapping
-* AI Case Summarization
-* Timeline Reconstruction
-* Multi-document Analysis
-* Dashboard Integration
-* API-based Processing Pipeline
-* Secure Legal Workspace
+Analyzes outcomes from similar cases.
 
-## Workflow
+Example:
+{
+  "outcome": "Guilty",
+  "percentage": 80.0
+}
+5. Evidence → Law Mapping
 
-```text
-Judgment PDF
-      ↓
-Text Extraction
-      ↓
-Legal NLP Processing
-      ↓
-Embedding Generation
-      ↓
-AI Legal Analysis
-      ↓
-Structured Intelligence Outputs
-```
+Maps commonly associated evidence to relevant legal sections.
 
-## Current Project Structure
-
-```text
-laww/
+Example:
+{
+  "evidence": "Eyewitness testimony",
+  "related_laws": ["IPC Section 302"]
+}
+Tech Stack
+Backend
+Flask
+Flask-CORS
+ML / NLP
+SentenceTransformers
+FAISS
+scikit-learn
+pandas
+numpy
+Dataset
+Excel-based legal dataset
+Project Structure
+NyayVivek-ML/
 │
-├── backend/
-├── frontend/
-├── ml/
-│   ├── nyayvivek_legal_analysis_pipeline.ipynb
-│   ├── requirements.txt
-│   ├── sample_cases/
-│   └── README.md
-```
+├── app.py
+├── ml_engine.py
+├── test_ml.py
+├── new.ipynb
+├── requirements.txt
+├── README.md
+├── temp1.xlsx
+├── faiss_index.pkl
+├── legal_dataset.pkl
+├── .gitignore
+Installation
+1. Clone Repository
+git clone https://github.com/iisha-git/NyayVivek-ML.git
+2. Move Into Project Folder
+cd NyayVivek-ML
+3. Create Virtual Environment
+Windows
+python -m venv venv
+4. Activate Virtual Environment
+PowerShell
+venv\Scripts\activate
 
-## Tech Stack
+If execution policy blocks activation:
 
-### Machine Learning / NLP
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 
-* SentenceTransformers
-* FAISS
-* Scikit-learn
-* Transformers
+Then activate again.
 
-### Backend
-
-* Python
-* Flask / FastAPI (planned)
-
-### Frontend
-
-* React (planned)
-
-## Current MVP Direction
-
-The current MVP focuses primarily on judgment-based legal analysis using publicly available court judgments and structured legal documents.
-
-The platform currently prioritizes:
-
-* semantic legal understanding
-* precedent retrieval
-* section detection
-* investigative insight generation
-
-before expanding into full confidential case workflows.
-
-## Installation
-
-```bash
-git clone https://github.com/Rishi-baba/laww.git
-cd laww
-```
-
-Install dependencies:
-
-```bash
+5. Install Dependencies
 pip install -r requirements.txt
-```
+Running the Backend
 
-## Future Vision
+Start Flask server:
 
-NyayVivek aims to evolve into a comprehensive legal intelligence workspace capable of assisting with:
+python app.py
 
-* legal document understanding
-* precedent analysis
-* contradiction identification
-* evidence structuring
-* judicial insight generation
+Backend runs at:
 
-through modern AI-assisted workflows.
+http://127.0.0.1:5000
+API Endpoint
+POST /analyze
 
-## Contributor
+Analyzes a legal case description.
 
-* Isha Singh
+Request Body
+{
+  "query": "The accused was involved in a murder case with eyewitness evidence."
+}
+Response Example
+{
+  "similar_cases": [
+    {
+      "case_title": "Albert Sinha vs State of Assam",
+      "case_type": "Criminal",
+      "legal_sections": "IPC Section 302",
+      "judgment_outcome": "Guilty"
+    }
+  ],
 
-```
-```
+  "predicted_sections": [
+    {
+      "section": "IPC 302",
+      "confidence": 31.55
+    }
+  ],
+
+  "missing_evidence": [
+    "medical evidence",
+    "postmortem report"
+  ],
+
+  "judgment_analytics": [
+    {
+      "outcome": "Guilty",
+      "percentage": 80.0
+    }
+  ],
+
+  "evidence_law_mapping": [
+    {
+      "evidence": "Eyewitness testimony",
+      "related_laws": [
+        "IPC Section 302"
+      ]
+    }
+  ]
+}
+Frontend Integration Example
+fetch("http://127.0.0.1:5000/analyze", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    query: "The accused was involved in a murder case..."
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data))
+ML Pipeline Flow
+Frontend/User Query
+        ↓
+Flask API (app.py)
+        ↓
+ML Engine (ml_engine.py)
+        ↓
+SentenceTransformer Embeddings
+        ↓
+FAISS Semantic Retrieval
+        ↓
+Legal Analysis Pipeline
+        ├── Similar Cases
+        ├── IPC Prediction
+        ├── Missing Evidence
+        ├── Judgment Analytics
+        └── Evidence-Law Mapping
+        ↓
+Structured JSON Response
+Dataset
+
+Dataset contains:
+
+Case titles
+Legal sections
+Judgment outcomes
+Evidence types
+Judge observations
+Legal keywords
+
+Stored as:
+
+temp1.xlsx
+Important Files
+app.py
+
+Main Flask backend API.
+
+ml_engine.py
+
+Contains all ML logic and legal analysis functions.
+
+faiss_index.pkl
+
+Serialized FAISS similarity index.
+
+legal_dataset.pkl
+
+Serialized processed dataset.
+
+new.ipynb
+
+Research and experimentation notebook.
+
+Current Capabilities
+Semantic legal search
+AI-assisted legal recommendations
+Explainable legal analytics
+Backend API integration
+Frontend-ready JSON responses
+Future Improvements
+PDF upload support
+OCR for scanned legal documents
+Deployment on Render/Railway/AWS
+FastAPI migration
+Authentication system
+Chat-style legal assistant
+Real-time analytics dashboard
+Authors
+
+NyayVivek Team
+
+GitHub:
+NyayVivek-ML Repository
