@@ -1,48 +1,39 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI
 
-from ml_engine import (
-    retrieve_similar_cases,
-    predict_legal_sections,
-    detect_missing_evidence,
-    judgment_pattern_analytics,
-    evidence_law_mapping
-)
+from pydantic import BaseModel
 
-app = Flask(__name__)
-CORS(app)
+from ml_model import analyze_case
 
-@app.route("/analyze", methods=["POST"])
-def analyze_case():
 
-    data = request.json
+# Create FastAPI app
+app = FastAPI()
 
-    query = data.get("query")
 
-    similar_cases = retrieve_similar_cases(query)
+# Input structure
+class CaseInput(BaseModel):
 
-    sections = predict_legal_sections(query)
+    query: str
 
-    missing_evidence = detect_missing_evidence(query)
 
-    analytics = judgment_pattern_analytics(query)
+# Home route
+@app.get("/")
 
-    evidence_mapping = evidence_law_mapping(query)
+def home():
 
-    return jsonify({
+    return {
 
-    "similar_cases": similar_cases,
+        "message":
+        "NyayaVivek API Running"
+    }
 
-    "predicted_sections": sections,
 
-    "missing_evidence": missing_evidence,
+# Main analysis route
+@app.post("/analyze_case")
 
-    "judgment_analytics": analytics,
+def analyze(data: CaseInput):
 
-    "evidence_law_mapping": evidence_mapping
+    results = analyze_case(
+        data.query
+    )
 
-})
-
-if __name__ == "__main__":
-
-    app.run(debug=True)
+    return results
